@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RPP Assistant Plus - SMAIT Cordova</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .spinner { animation: spin 1s linear infinite; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen">
+
+    <!-- Header -->
+    <header class="bg-indigo-800 text-white px-8 py-4 shadow-md">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-4">
+                <div class="bg-white p-1 rounded-lg shadow-inner flex items-center justify-center w-14 h-14 overflow-hidden">
+                    <svg viewBox="0 0 100 100" class="w-10 h-10 text-indigo-800">
+                        <path d="M50 5 L90 25 L90 75 L50 95 L10 75 L10 25 Z" fill="none" stroke="currentColor" stroke-width="4" />
+                        <text x="50" y="55" font-size="12" font-weight="bold" text-anchor="middle" fill="currentColor">CORDOVA</text>
+                        <circle cx="50" cy="35" r="5" fill="currentColor" />
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-xl font-black tracking-tight leading-tight">RPP Assistant <span class="text-indigo-300">Plus</span></h1>
+                    <p class="text-[10px] font-bold text-indigo-200 uppercase tracking-[0.2em]">SMAIT Cordova Digital System</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4 bg-indigo-900/40 px-4 py-2 rounded-2xl border border-indigo-700">
+                <div class="text-right text-white">
+                    <p id="display-guru" class="text-xs font-bold leading-none">Abu Rizal Bakri, S.Kom</p>
+                    <p class="text-[10px] text-indigo-300 mt-1 uppercase font-medium">SMAIT Cordova</p>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center font-bold text-white border-2 border-indigo-400 uppercase">AR</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-6xl mx-auto p-6 grid lg:grid-cols-12 gap-8">
+        
+        <!-- Input Section -->
+        <div class="lg:col-span-5 space-y-6">
+            <div class="bg-white rounded-3xl p-8 shadow-sm border border-slate-200">
+                <h2 class="text-sm font-black text-slate-400 uppercase tracking-widest mb-6 flex items-center gap-2">
+                    Identitas Pembelajaran
+                </h2>
+                
+                <form id="rpp-form" class="space-y-4">
+                    <div class="space-y-4">
+                        <input type="text" id="namaGuru" value="Abu Rizal Bakri, S.Kom" placeholder="Nama Guru" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 focus:border-indigo-500 outline-none transition-all text-sm font-medium">
+                        <input type="text" id="asalSekolah" value="SMAIT Cordova" placeholder="Asal Sekolah" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 focus:border-indigo-500 outline-none transition-all text-sm font-medium">
+                        <input type="text" id="mataPelajaran" value="Informatika" placeholder="Mata Pelajaran" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 focus:border-indigo-500 outline-none transition-all text-sm font-medium">
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <input type="text" id="kelasFase" value="XI / F" placeholder="Kelas / Fase" class="px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 focus:border-indigo-500 outline-none transition-all text-sm font-medium">
+                            <input type="text" id="alokasiWaktu" value="2 JP (2 x 45 Menit)" placeholder="Alokasi Waktu" class="px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 focus:border-indigo-500 outline-none transition-all text-sm font-medium">
+                        </div>
+                        
+                        <input type="text" id="materiPokok" placeholder="Materi Pokok (Wajib)" class="w-full px-4 py-3 rounded-xl bg-indigo-50 border border-indigo-100 focus:border-indigo-500 outline-none transition-all text-sm font-bold text-indigo-900">
+                    </div>
+
+                    <div class="mt-6 border-t border-slate-100 pt-6">
+                        <label class="block text-[10px] font-black text-slate-400 uppercase mb-2">Instruksi Tambahan</label>
+                        <textarea id="prompt" class="w-full h-24 p-4 rounded-xl bg-slate-50 border border-slate-100 focus:border-indigo-500 outline-none transition-all resize-none text-xs" placeholder="Misal: Gunakan pendekatan PBL..."></textarea>
+                    </div>
+
+                    <button type="button" onclick="generateRPP()" id="btn-generate" class="w-full mt-6 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-3 transition-all active:scale-95 shadow-xl shadow-indigo-100">
+                        <span>Hasilkan RPP Sekarang</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Output Section -->
+        <div class="lg:col-span-7">
+            <div id="empty-state" class="bg-white rounded-3xl border-2 border-dashed border-slate-200 h-full min-h-[500px] flex flex-col items-center justify-center text-slate-400 p-12 text-center">
+                <div class="bg-slate-50 p-6 rounded-full mb-4">
+                    <svg class="w-12 h-12 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                </div>
+                <h3 class="text-slate-600 font-bold mb-1">Preview Belum Siap</h3>
+                <p class="text-xs">Isi materi pokok untuk memulai.</p>
+            </div>
+
+            <div id="output-container" class="hidden space-y-6">
+                <div class="bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden">
+                    <div class="px-8 py-4 bg-slate-900 flex justify-between items-center">
+                        <span class="text-white text-xs font-black uppercase tracking-widest">Preview Dokumen</span>
+                        <button onclick="exportToPDF()" class="bg-green-500 hover:bg-green-600 text-white px-5 py-2 rounded-xl text-xs font-bold transition-all active:scale-95 shadow-lg">Unduh PDF</button>
+                    </div>
+                    <div id="rpp-content" class="p-10 bg-white max-h-[700px] overflow-y-auto custom-scrollbar font-serif prose prose-slate">
+                        <!-- Konten Terisi di Sini -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="py-12 text-center">
+        <p class="text-[10px] font-black text-slate-300 uppercase tracking-[0.3em]">Cordova Smart Educator • v2.2 HTML Edition</p>
+    </footer>
+
+    <script>
+        const apiKey = ""; // API Key otomatis
+
+        async function generateRPP() {
+            const materi = document.getElementById('materiPokok').value;
+            if (!materi) {
+                alert("Harap isi Materi Pokok!");
+                return;
+            }
+
+            const btn = document.getElementById('btn-generate');
+            const emptyState = document.getElementById('empty-state');
+            const outputContainer = document.getElementById('output-container');
+            const rppContent = document.getElementById('rpp-content');
+
+            btn.disabled = true;
+            btn.innerHTML = '<svg class="spinner w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" opacity="0.2"/><path d="M21 12a9 9 0 00-9-9" stroke-linecap="round"/></svg> Menyusun RPP...';
+
+            const payload = {
+                namaGuru: document.getElementById('namaGuru').value,
+                asalSekolah: document.getElementById('asalSekolah').value,
+                mapel: document.getElementById('mataPelajaran').value,
+                kelas: document.getElementById('kelasFase').value,
+                materi: materi,
+                waktu: document.getElementById('alokasiWaktu').value,
+                prompt: document.getElementById('prompt').value
+            };
+
+            const systemPrompt = `Anda adalah pakar kurikulum merdeka. Buat RPP SMAIT Cordova yang sangat lengkap dan rapi. 
+            Materi: ${payload.materi}. Mapel: ${payload.mapel}. 
+            Gunakan subjudul: B. Capaian, C. Tujuan, D. Profil Pancasila, E. Media, F. Langkah (Discovery Learning), G. Penilaian, H. LKPD.`;
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: `Buatkan RPP lengkap untuk: ${payload.materi}. Instruksi tambahan: ${payload.prompt}` }] }],
+                        systemInstruction: { parts: [{ text: systemPrompt }] }
+                    })
+                });
+
+                const data = await response.json();
+                const text = data.candidates[0].content.parts[0].text;
+                
+                renderPreview(payload, text);
+                emptyState.classList.add('hidden');
+                outputContainer.classList.remove('hidden');
+            } catch (err) {
+                alert("Gagal menghubungi AI. Coba lagi.");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span>Hasilkan RPP Sekarang</span>';
+            }
+        }
+
+        function renderPreview(payload, content) {
+            const container = document.getElementById('rpp-content');
+            let html = `
+                <h1 class="text-center text-xl font-bold uppercase mb-1">RENCANA PELAKSANAAN PEMBELAJARAN (RPP)</h1>
+                <p class="text-center text-sm font-bold text-slate-500 mb-8 uppercase">${payload.asalSekolah} - 2025/2026</p>
+                
+                <h2 class="text-md font-bold underline mb-3">A. Identitas Pembelajaran</h2>
+                <table class="w-full text-sm border-collapse border border-slate-300 mb-8">
+                    <tr><td class="border border-slate-300 p-2 font-bold bg-slate-50 w-1/3">Nama Penyusun</td><td class="border border-slate-300 p-2">${payload.namaGuru}</td></tr>
+                    <tr><td class="border border-slate-300 p-2 font-bold bg-slate-50">Satuan Pendidikan</td><td class="border border-slate-300 p-2">${payload.asalSekolah}</td></tr>
+                    <tr><td class="border border-slate-300 p-2 font-bold bg-slate-50">Mata Pelajaran</td><td class="border border-slate-300 p-2">${payload.mapel}</td></tr>
+                    <tr><td class="border border-slate-300 p-2 font-bold bg-slate-50">Kelas / Fase</td><td class="border border-slate-300 p-2">${payload.kelas}</td></tr>
+                    <tr><td class="border border-slate-300 p-2 font-bold bg-slate-50">Materi Pokok</td><td class="border border-slate-300 p-2 font-bold">${payload.materi}</td></tr>
+                    <tr><td class="border border-slate-300 p-2 font-bold bg-slate-50">Alokasi Waktu</td><td class="border border-slate-300 p-2">${payload.waktu}</td></tr>
+                </table>
+            `;
+
+            content.split('\n').forEach(line => {
+                const clean = line.replace(/[#*]/g, '').trim();
+                if (!clean || clean.includes('RENCANA') || clean.includes('Identitas')) return;
+                
+                if (/^[B-Z]\./.test(clean)) {
+                    html += `<h2 class="text-lg font-bold text-indigo-800 mt-6 mb-2 border-l-4 border-indigo-500 pl-3">${clean}</h2>`;
+                } else {
+                    html += `<p class="text-sm text-slate-700 mb-2 leading-relaxed">${clean}</p>`;
+                }
+            });
+
+            container.innerHTML = html;
+        }
+
+        function exportToPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const payload = {
+                guru: document.getElementById('namaGuru').value,
+                sekolah: document.getElementById('asalSekolah').value,
+                materi: document.getElementById('materiPokok').value,
+                tahun: "2025/2026"
+            };
+
+            doc.setFont("helvetica", "bold");
+            doc.text("RENCANA PELAKSANAAN PEMBELAJARAN (RPP)", 105, 20, { align: "center" });
+            doc.setFontSize(10);
+            doc.text(`${payload.sekolah.toUpperCase()} - ${payload.tahun}`, 105, 26, { align: "center" });
+            doc.line(20, 30, 190, 30);
+
+            // Identitas Table
+            const data = [
+                ["Nama Penyusun", `: ${payload.guru}`],
+                ["Satuan Pendidikan", `: ${payload.sekolah}`],
+                ["Mata Pelajaran", `: ${document.getElementById('mataPelajaran').value}`],
+                ["Kelas / Fase", `: ${document.getElementById('kelasFase').value}`],
+                ["Materi Pokok", `: ${payload.materi}`],
+                ["Alokasi Waktu", `: ${document.getElementById('alokasiWaktu').value}`]
+            ];
+
+            doc.autoTable({
+                startY: 35,
+                body: data,
+                theme: 'plain',
+                styles: { fontSize: 9 },
+                columnStyles: { 0: { fontStyle: 'bold', cellWidth: 40 } }
+            });
+
+            // Footer / Tanda Tangan
+            const finalY = doc.lastAutoTable.finalY + 20;
+            doc.text("Mengetahui,", 20, finalY);
+            doc.text("Kepala SMAIT CORDOVA", 20, finalY + 6);
+            doc.text("Nahroji, S.Pd.i", 20, finalY + 30);
+            
+            doc.text("Tangerang, " + new Date().toLocaleDateString('id-ID'), 140, finalY);
+            doc.text("Guru Mata Pelajaran", 140, finalY + 6);
+            doc.text(payload.guru, 140, finalY + 30);
+
+            doc.save(`RPP_${payload.materi}.pdf`);
+        }
+
+        // Live update header name
+        document.getElementById('namaGuru').addEventListener('input', (e) => {
+            document.getElementById('display-guru').innerText = e.target.value;
+        });
+    </script>
+</body>
+</html>
